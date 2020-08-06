@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace life
@@ -36,15 +30,15 @@ namespace life
         private void NextGeneration()
         {
             graphics.Clear(Color.Black);
-            var newfield = new bool[cols, rows];
+            bool[,] newfield = new bool[cols, rows];
             for (int x = 0; x < cols; x++)
             {
                 for (int y = 0; y < rows; y++)
                 {
-                    var neighboursCount = CountNeighbours(x, y);
+                    int neighboursCount = CountNeighbours(x, y);
                     if (!field[x, y] && neighboursCount == 3)
                         newfield[x, y] = true;
-                    else if (field[x, y] && (neighboursCount < 3 || neighboursCount > 4))
+                    else if (field[x, y] && (neighboursCount < 2 || neighboursCount > 3))
                         newfield[x, y] = false;
                     else
                         newfield[x, y] = field[x, y];
@@ -63,12 +57,18 @@ namespace life
         {
             int count = 0;
             for (int i = -1; i < 2; i++)
-                for (int j = -1; j < 2; j++)
+                for (int j = -1; j < 2; j+=2)
                 {
                     if (field[(x + i + cols) % cols, (y + j + rows) % rows])
                         count++;
                 }
-            return count;
+            if (field[(x - 1 + cols) % cols, (y + rows) % rows])
+                count++;
+
+            if (field[(x + 1 + cols) % cols, (y + rows) % rows])
+                count++;
+
+                return count;
         }
 
         private void bStartNew_Click(object sender, EventArgs e)
