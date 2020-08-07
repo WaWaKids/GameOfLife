@@ -2,13 +2,13 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace life
+namespace GameOfLife
 {
     public partial class Form1 : Form
     {
         private Graphics graphics;
         private int resolution;
-        private bool[,] field;
+        private bool[,] field;  //true - alive, false - dead
         private int rows;
         private int cols;
         private uint currentGeneration;
@@ -35,10 +35,10 @@ namespace life
             {
                 for (int y = 0; y < rows; y++)
                 {
-                    int neighboursCount = CountNeighbours(x, y);
-                    if (!field[x, y] && neighboursCount == 3)
+                    int numberOfNeighbours = CountNeighbours(in x, in y);
+                    if (!field[x, y] && numberOfNeighbours == 3)
                         newfield[x, y] = true;
-                    else if (field[x, y] && (neighboursCount < 2 || neighboursCount > 3))
+                    else if (field[x, y] && (numberOfNeighbours < 2 || numberOfNeighbours > 3))
                         newfield[x, y] = false;
                     else
                         newfield[x, y] = field[x, y];
@@ -53,7 +53,7 @@ namespace life
             pictureBox1.Refresh();
         }
 
-        private int CountNeighbours(int x, int y)
+        private int CountNeighbours(in int x, in int y)
         {
             int count = 0;
             for (int i = -1; i < 2; i++)
@@ -62,13 +62,19 @@ namespace life
                     if (field[(x + i + cols) % cols, (y + j + rows) % rows])
                         count++;
                 }
+
             if (field[(x - 1 + cols) % cols, (y + rows) % rows])
                 count++;
 
             if (field[(x + 1 + cols) % cols, (y + rows) % rows])
                 count++;
 
-                return count;
+            //we don't need to check the cell itself while counting all the
+            //neighbours, so i've decided to check all the cells below and above,
+            //and then the ones on the left and on the right, so, instead of 9 checks
+            //through nested loops, we make only 8
+
+            return count;
         }
 
         private void bStartNew_Click(object sender, EventArgs e)
@@ -114,7 +120,7 @@ namespace life
             field = new bool[cols, rows];
         }
 
-        private void Draw()
+        private void Draw() //didn't know how to else call this method
         {
             graphics.Clear(Color.Black);
             var newfield = new bool[cols, rows];
@@ -145,10 +151,7 @@ namespace life
                 {
                     field[x, y] = true;
                 }
-                catch
-                {
-
-                }
+                catch { }
             }
 
             if (e.Button == MouseButtons.Right)
@@ -159,10 +162,7 @@ namespace life
                 {
                     field[x, y] = false;
                 }
-                catch
-                {
-
-                }
+                catch { }
             }
         }
     }
